@@ -8,13 +8,13 @@ Look at the `struct Task` and the `read` function:
 
 **C**
 
-`struct Task {
-    char buffer[16]; // 16 bytes
-    char target[8];  // 8 bytes
-};
-
-...
-int n = read(0, t.buffer, 32); // The Bug!`
+    struct Task {
+        char buffer[16]; // 16 bytes
+        char target[8];  // 8 bytes
+    };
+    
+    ...
+    int n = read(0, t.buffer, 32); // The Bug!
 
 The `buffer` is only **16 bytes** long, but the `read` function allows you to input up to **32 bytes**. Because the `target` variable is defined immediately after `buffer` in the struct, the extra bytes you type will "overflow" out of `buffer` and write directly into `target`.
 
