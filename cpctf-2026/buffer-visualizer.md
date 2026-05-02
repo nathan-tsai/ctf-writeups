@@ -47,7 +47,7 @@ Since this is a simple string input, you can just type it in the netcat session,
 
 **Python**
 
-    `from pwn import *
+    from pwn import *
     
     **Connection details**
     
@@ -74,7 +74,7 @@ Since this is a simple string input, you can just type it in the netcat session,
         print(response)
     
     if __name__ == "__main__":
-        solve()`
+        solve()
 
 ### **Manual Solve**
 
