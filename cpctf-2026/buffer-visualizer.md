@@ -50,6 +50,7 @@ Since this is a simple string input, you can just type it in the netcat session,
 `from pwn import *
 
 **Connection details**
+
 HOST = '133.88.122.244'
 PORT = 30766
 
