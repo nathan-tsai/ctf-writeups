@@ -1,3 +1,5 @@
+# Buffer Visualizer
+
 This is a classic **Buffer Overflow** challenge. The "visualizer" is actually showing you the memory layout in real-time, which makes this very intuitive to solve.
 
 ### **The Vulnerability**
@@ -47,7 +49,7 @@ Since this is a simple string input, you can just type it in the netcat session,
 
 `from pwn import *
 
-# Connection details
+**Connection details**
 HOST = '133.88.122.244'
 PORT = 30766
 
